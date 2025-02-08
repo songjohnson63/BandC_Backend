@@ -3,3 +3,4 @@
 
 <x-backpack::menu-item title="Products" icon="las la-graduation-cap" :link="backpack_url('product')" />
 <x-backpack::menu-item title="Product Types" icon="las la-graduation-cap" :link="backpack_url('product_type')" />
+<x-backpack::menu-item title="Customers" icon="las la-graduation-cap" :link="backpack_url('customer')" />
