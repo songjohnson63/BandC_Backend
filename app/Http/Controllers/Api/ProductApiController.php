@@ -16,10 +16,23 @@ class ProductApiController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function index()
+    public function index(Request $request)
     {
-      
-        $products = Product::with('productType')->get(); 
+        $query = Product::with('productType');
+    
+        // Check if 'best_seller' query parameter is present
+        if ($request->has('best_seller')) {
+            $bestSeller = $request->query('best_seller');
+            // Filter products where best_seller matches the query parameter (1 or true)
+            if ($bestSeller == 1) {
+                $query->where('best_seller', true);
+            } elseif ($bestSeller == 0) {
+                $query->where('best_seller', false);
+            }
+        }
+    
+        // Get the filtered products
+        $products = $query->get();
 
         return ApiResponseHelper::success(ProductResource::collection($products));
 
@@ -105,4 +118,6 @@ class ProductApiController extends Controller
 
         return response()->json(null, 204);
     }
+
+
 }

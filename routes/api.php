@@ -40,4 +40,7 @@ Route::prefix('product')->group(function () {
     Route::get('{id}', [ProductApiController::class, 'show']);
     Route::put('{id}', [ProductApiController::class, 'update']);
     Route::delete('{id}', [ProductApiController::class, 'destroy']);
+
 });
+
+//Best Seller
