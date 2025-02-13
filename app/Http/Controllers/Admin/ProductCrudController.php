@@ -102,6 +102,12 @@ class ProductCrudController extends CrudController
         ]);
 
         CRUD::addField([
+            'name' => 'best_seller',
+            'label' => 'Best Seller',
+            'type' => 'boolean',
+        ]);
+
+        CRUD::addField([
             'name' => 'ori_price',
             'label' => 'Original Price',
             'type' => 'text',

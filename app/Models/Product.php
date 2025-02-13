@@ -24,6 +24,7 @@ class Product extends Model
         'ori_price',
         'price',
         'img',
+        'best_seller',
     ];
 
     // Ensure correct image URL is returned

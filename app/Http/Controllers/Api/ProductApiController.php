@@ -39,6 +39,7 @@ class ProductApiController extends Controller
             'description' => 'nullable|string|max:1000', // Corrected text -> string
             'volume' => 'required|string|max:255',
             'key_ingredient' => 'nullable|string|max:1000', // Corrected text -> string
+            'best_seller' => 'nullable|boolean',
             'ori_price' => 'nullable|numeric|min:0', // Changed to numeric
             'price' => 'nullable|numeric|min:0', // Changed to numeric
             'img' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validate the uploaded image
@@ -80,6 +81,7 @@ class ProductApiController extends Controller
             'description' => 'nullable|string|max:1000', // Corrected text -> string
             'volume' => 'required|string|max:255',
             'key_ingredient' => 'nullable|string|max:1000', // Corrected text -> string
+            'best_seller' => 'nullable|boolean',
             'ori_price' => 'nullable|numeric|min:0', // Changed to numeric
             'price' => 'nullable|numeric|min:0', // Changed to numeric
             'img' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validate the uploaded image
