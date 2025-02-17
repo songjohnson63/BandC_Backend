@@ -21,7 +21,7 @@ class Product extends Model
         'description',
         'volume',
         'key_ingredient',
-        'ori_price',
+        'discount',
         'price',
         'img',
         'best_seller',
@@ -44,6 +44,14 @@ class Product extends Model
     {
         return $this->belongsTo(ProductType::class, 'product_type_id');
     }
+
+
+    // **Calculate Final Price (Price After Discount)**
+     // **Override price to always return the discounted price**
+     public function getPriceAttribute($value)
+     {
+         return round($value - ($value * ($this->discount / 100)), 2);
+     }
     // Optionally, if you have relationships, you can define them here
     // public function category()
     // {
