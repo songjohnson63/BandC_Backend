@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\Product;
 
 
-
 /**
  * Class ProductCrudController
  * @package App\Http\Controllers\Admin
