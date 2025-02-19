@@ -16,10 +16,23 @@ class ProductApiController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function index()
+    public function index(Request $request)
     {
-      
-        $products = Product::with('productType')->get(); 
+        $query = Product::with('productType');
+    
+        // Check if 'best_seller' query parameter is present
+        if ($request->has('best_seller')) {
+            $bestSeller = $request->query('best_seller');
+            // Filter products where best_seller matches the query parameter (1 or true)
+            if ($bestSeller == 1) {
+                $query->where('best_seller', true);
+            } elseif ($bestSeller == 0) {
+                $query->where('best_seller', false);
+            }
+        }
+    
+        // Get the filtered products
+        $products = $query->get();
 
         return ApiResponseHelper::success(ProductResource::collection($products));
 
@@ -39,7 +52,8 @@ class ProductApiController extends Controller
             'description' => 'nullable|string|max:1000', // Corrected text -> string
             'volume' => 'required|string|max:255',
             'key_ingredient' => 'nullable|string|max:1000', // Corrected text -> string
-            'ori_price' => 'nullable|numeric|min:0', // Changed to numeric
+            'best_seller' => 'nullable|boolean',
+            'discount' => 'nullable|numeric|min:0', // Changed to numeric
             'price' => 'nullable|numeric|min:0', // Changed to numeric
             'img' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validate the uploaded image
         ]);
@@ -80,7 +94,8 @@ class ProductApiController extends Controller
             'description' => 'nullable|string|max:1000', // Corrected text -> string
             'volume' => 'required|string|max:255',
             'key_ingredient' => 'nullable|string|max:1000', // Corrected text -> string
-            'ori_price' => 'nullable|numeric|min:0', // Changed to numeric
+            'best_seller' => 'nullable|boolean',
+            'discount' => 'nullable|numeric|min:0', // Changed to numeric
             'price' => 'nullable|numeric|min:0', // Changed to numeric
             'img' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validate the uploaded image
         ]);
@@ -103,4 +118,6 @@ class ProductApiController extends Controller
 
         return response()->json(null, 204);
     }
+
+
 }

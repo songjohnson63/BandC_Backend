@@ -29,7 +29,8 @@ class ProductRequest extends FormRequest
             'description' => 'nullable|string|max:1000', // Corrected text -> string
             'volume' => 'required|string|max:255',
             'key_ingredient' => 'nullable|string|max:1000', // Corrected text -> string
-            'ori_price' => 'nullable|numeric|min:0', // Changed to numeric
+            'best_seller' => 'nullable|boolean',
+            'discount' => 'nullable|numeric|min:0', // Changed to numeric
             'price' => 'nullable|numeric|min:0', // Changed to numeric
             'img' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validate the uploaded image
         ];
