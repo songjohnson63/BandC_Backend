@@ -7,6 +7,8 @@ use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Product;
+
 
 
 /**
@@ -43,18 +45,24 @@ class ProductCrudController extends CrudController
         ]);
 
         CRUD::addColumn([
-            'name' => 'price',
-            'label' => 'Price',
-            'type' => 'text',
-        ]);
-
-        CRUD::addColumn([
             'name' => 'img',
             'label' => 'Image',
             'type' => 'upload',
             'upload' => true,
             // Displays the image field as a clickable thumbnail
             'disk' => 'public', // Ensure the images are stored in the public disk
+        ]);
+
+        CRUD::addColumn([
+            'name' => 'price',
+            'label' => 'Final Price',
+            'type' => 'number',
+        ]);
+    
+        CRUD::addColumn([
+            'name' => 'discount',
+            'label' => 'Discount (%)',
+            'type' => 'number',
         ]);
     }
 
@@ -102,8 +110,14 @@ class ProductCrudController extends CrudController
         ]);
 
         CRUD::addField([
-            'name' => 'ori_price',
-            'label' => 'Original Price',
+            'name' => 'best_seller',
+            'label' => 'Best Seller',
+            'type' => 'boolean',
+        ]);
+
+        CRUD::addField([
+            'name' => 'discount',
+            'label' => 'Discount',
             'type' => 'text',
         ]);
 
