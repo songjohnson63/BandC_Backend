@@ -46,6 +46,12 @@ class CustomerCrudController extends CrudController
             'default' => 'male', // Default value for the field
         ]);
 
+        CRUD::addField([
+            'name' => 'password',
+            'label' => 'Password',
+            'type' => 'password',
+        ]);
+
              
     }
 

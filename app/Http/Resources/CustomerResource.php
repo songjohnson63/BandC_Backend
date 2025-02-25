@@ -14,6 +14,7 @@ class CustomerResource extends JsonResource
             'gender' => $this->gender,
             'address' => $this->address,
             'phonenumber' => $this->phonenumber,
+            'password' => $this->password,
  
         ];
     }
