@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Api\Controller;
@@ -20,10 +19,9 @@ class ProductApiController extends Controller
     {
         $query = Product::with('productType');
     
-        // Check if 'best_seller' query parameter is present
+        // Filter by best_seller
         if ($request->has('best_seller')) {
             $bestSeller = $request->query('best_seller');
-            // Filter products where best_seller matches the query parameter (1 or true)
             if ($bestSeller == 1) {
                 $query->where('best_seller', true);
             } elseif ($bestSeller == 0) {
@@ -31,12 +29,22 @@ class ProductApiController extends Controller
             }
         }
     
-        // Get the filtered products
+        // Filter by product_type name (case-insensitive) - Update to use 'type_name'
+        if ($request->has('product_type')) {
+            $productTypeName = strtolower($request->query('product_type')); // Convert input to lowercase
+    
+            $query->whereHas('productType', function ($q) use ($productTypeName) {
+                $q->whereRaw('LOWER(type_name) = ?', [$productTypeName]); // Use 'type_name' instead of 'name'
+            });
+        }
+    
+        // Get filtered products
         $products = $query->get();
-
+    
         return ApiResponseHelper::success(ProductResource::collection($products));
-
     }
+    
+    
 
     /**
      * Store a newly created student in storage.
@@ -61,7 +69,6 @@ class ProductApiController extends Controller
         $product = Product::create($validated);
 
         return ApiResponseHelper::success($product, "Product created successfully", 201);
-
     }
 
     /**
@@ -118,6 +125,4 @@ class ProductApiController extends Controller
 
         return response()->json(null, 204);
     }
-
-
 }
