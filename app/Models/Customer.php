@@ -49,6 +49,12 @@ class Customer extends Model
         return $this->belongsToMany(Product::class, 'favorites', 'customer_id', 'product_id');
     }
 
+    public function cartItems()
+    {
+        return $this->hasMany(CartItem::class);
+    }
+
+
 
     // Automatically hash the password when creating or updating
     // public function setPasswordAttribute($value)

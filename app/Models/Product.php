@@ -75,5 +75,11 @@ class Product extends Model
         return $this->favoritedBy()->where('customer_id', $currentUser->id)->exists();
     }
 
+    public function cartItems()
+    {
+        return $this->hasMany(CartItem::class);
+    }
+
+
 
 }

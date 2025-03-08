@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CustomerApiController;
 use App\Http\Controllers\Api\ProductApiController;
 use App\Http\Controllers\Api\FavoriteApiController;
+use App\Http\Controllers\Api\CartApiController;
 
 
 /*
@@ -47,3 +48,8 @@ Route::prefix('product')->group(function () {
 Route::middleware('auth:sanctum')->post('/favorites/toggle', [FavoriteApiController::class, 'toggleFavorite']);
 Route::middleware('auth:sanctum')->get('/favorites', [FavoriteApiController::class, 'getFavorites']);
 
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/cart/add', [CartApiController::class, 'addToCart']);
+    Route::get('/cart', [CartApiController::class, 'getCartItems']);
+    Route::delete('/cart/remove/{id}', [CartApiController::class, 'removeFromCart']);
+});
