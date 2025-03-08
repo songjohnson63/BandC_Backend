@@ -27,6 +27,8 @@ class Product extends Model
         'best_seller',
     ];
 
+    protected $appends = ['favorited_by_current_user'];
+
     // Ensure correct image URL is returned
     public function getImgAttribute($value)
     {
@@ -57,4 +59,21 @@ class Product extends Model
     // {
     //     return $this->belongsTo(Category::class);
     // }
+
+    public function favoritedBy()
+    {
+        return $this->belongsToMany(Customer::class, 'favorites', 'product_id', 'customer_id');
+    }
+
+    public function getFavoritedByCurrentUserAttribute()
+    {
+        $currentUser = auth('sanctum')->user();
+        if (!$currentUser) {
+            return false;
+        }
+
+        return $this->favoritedBy()->where('customer_id', $currentUser->id)->exists();
+    }
+
+
 }

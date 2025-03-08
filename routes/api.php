@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CustomerApiController;
 use App\Http\Controllers\Api\ProductApiController;
+use App\Http\Controllers\Api\FavoriteApiController;
 
 
 /*
@@ -43,4 +44,6 @@ Route::prefix('product')->group(function () {
 
 });
 
-//Best Seller
+Route::middleware('auth:sanctum')->post('/favorites/toggle', [FavoriteApiController::class, 'toggleFavorite']);
+Route::middleware('auth:sanctum')->get('/favorites', [FavoriteApiController::class, 'getFavorites']);
+

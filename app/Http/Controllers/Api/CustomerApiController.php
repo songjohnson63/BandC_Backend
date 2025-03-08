@@ -18,8 +18,12 @@ class CustomerApiController extends Controller
      */
     public function index()
     {
-        $customers = Customer::all(); 
-        return ApiResponseHelper::success($customers);
+        // $customers = Customer::all(); 
+        // $query = Customer::with('cityProvince');
+
+        // return ApiResponseHelper::success($customers);
+        $customers = Customer::with('cityProvince')->get();
+        return ApiResponseHelper::success(CustomerResource::collection($customers));
 
     }
 
@@ -56,7 +60,8 @@ class CustomerApiController extends Controller
      */
     public function show($id)
     {
-        $customer = Customer::findOrFail($id); 
+        $customer = Customer::with('cityProvince')->findOrFail($id); 
+
 
         return new CustomerResource($customer);
     }

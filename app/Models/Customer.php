@@ -21,7 +21,8 @@ class Customer extends Model
         'gender',
         'address',
         'phonenumber',
-        'password'
+        'password',
+        'city_province_id'
         
     ];
 
@@ -37,6 +38,17 @@ class Customer extends Model
     {
         $this->attributes['password'] = bcrypt($value);
     }
+
+    public function cityProvince()
+    {
+        return $this->belongsTo(CityProvince::class, 'city_province_id');
+    }
+
+    public function favorites()
+    {
+        return $this->belongsToMany(Product::class, 'favorites', 'customer_id', 'product_id');
+    }
+
 
     // Automatically hash the password when creating or updating
     // public function setPasswordAttribute($value)

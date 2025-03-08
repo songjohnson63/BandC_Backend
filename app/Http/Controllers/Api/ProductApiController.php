@@ -30,7 +30,15 @@ class ProductApiController extends Controller
                 $query->where('best_seller', false);
             }
         }
+
+        if ($request->has('product_type')) {
+            $productTypeName = strtolower($request->query('product_type')); // Convert input to lowercase
     
+            $query->whereHas('productType', function ($q) use ($productTypeName) {
+                $q->whereRaw('LOWER(type_name) = ?', [$productTypeName]); // Use 'type_name' instead of 'name'
+            });
+        }
+        
         // Get the filtered products
         $products = $query->get();
 
