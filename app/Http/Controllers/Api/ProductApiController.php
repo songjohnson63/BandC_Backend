@@ -57,15 +57,20 @@ class ProductApiController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'brand' => 'nullable|string|max:255',
-            'description' => 'nullable|string|max:1000', // Corrected text -> string
+            'description' => 'nullable|string|max:2500', // Corrected text -> string
             'volume' => 'required|string|max:255',
-            'key_ingredient' => 'nullable|string|max:1000', // Corrected text -> string
+            'key_ingredient' => 'nullable|string|max:2500', // Corrected text -> string
             'best_seller' => 'nullable|boolean',
             'discount' => 'nullable|numeric|min:0', // Changed to numeric
             'price' => 'nullable|numeric|min:0', // Changed to numeric
             'img' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validate the uploaded image
         ]);
 
+        if ($request->hasFile('img')) {
+            $imagePath = $request->file('img')->store('IMAGES', 'public'); // Save in storage/app/public/IMAGES
+            $validated['img'] = $imagePath; // Store relative path in database
+        }
+    
         $product = Product::create($validated);
 
         return ApiResponseHelper::success($product, "Product created successfully", 201);

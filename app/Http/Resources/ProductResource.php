@@ -29,7 +29,9 @@ class ProductResource extends JsonResource
             'discount' => $this->discount,
             'price' => $this->price,
             'favorited_by_current_user' => $this->favorited_by_current_user,
-            'img' => $this->img,
+            // 'img' => $this->img,
+            'img' => $this->img ? asset('storage/' . $this->img) : null,
+
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

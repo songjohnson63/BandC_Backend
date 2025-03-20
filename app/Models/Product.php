@@ -5,6 +5,8 @@ namespace App\Models;
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
+
 
 class Product extends Model
 {
@@ -27,13 +29,8 @@ class Product extends Model
         'best_seller',
     ];
 
-    protected $appends = ['favorited_by_current_user'];
 
-    // Ensure correct image URL is returned
-    public function getImgAttribute($value)
-    {
-        return $value ? asset($value) : null;
-    }
+    protected $appends = ['favorited_by_current_user'];
 
 
     // If you need to cast attributes to a specific type, use the $casts property
@@ -78,6 +75,27 @@ class Product extends Model
     public function cartItems()
     {
         return $this->hasMany(CartItem::class);
+    }
+
+    public function setImgAttribute($value)
+    {
+        $attribute_name = "img"; // Ensure it matches the database column name
+        $disk = "public"; // Laravel uses "public" disk for storage links
+        $destination_path = "IMAGES"; // Save inside storage/app/public/IMAGES
+
+        // If a new file is uploaded
+        if (request()->hasFile($attribute_name)) {
+            // Delete the old image if it exists
+            if ($this->{$attribute_name}) {
+                Storage::disk($disk)->delete($this->{$attribute_name});
+            }
+
+            // Store the file correctly & return the relative path
+            $path = request()->file($attribute_name)->store($destination_path, $disk);
+
+            // Save only the relative path (without "storage/")
+            $this->attributes[$attribute_name] = $path;
+        }
     }
 
 
