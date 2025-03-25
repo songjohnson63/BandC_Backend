@@ -51,5 +51,10 @@ class FavoriteApiController extends Controller
 
     }
 
+    public function getImgAttribute($value)
+    {
+        return url('storage/' . ltrim($value, 'storage/'));
+    }
+
 
 }

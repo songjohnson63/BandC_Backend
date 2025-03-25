@@ -63,6 +63,7 @@ class ProductApiController extends Controller
             'best_seller' => 'nullable|boolean',
             'discount' => 'nullable|numeric|min:0', // Changed to numeric
             'price' => 'nullable|numeric|min:0', // Changed to numeric
+            'price_after_discount' => 'nullable|numeric|min:0', // Changed to numeric
             'img' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validate the uploaded image
         ]);
 
@@ -104,12 +105,13 @@ class ProductApiController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'brand' => 'nullable|string|max:255',
-            'description' => 'nullable|string|max:1000', // Corrected text -> string
+            'description' => 'nullable|string|max:2500', // Corrected text -> string
             'volume' => 'required|string|max:255',
-            'key_ingredient' => 'nullable|string|max:1000', // Corrected text -> string
+            'key_ingredient' => 'nullable|string|max:2500', // Corrected text -> string
             'best_seller' => 'nullable|boolean',
             'discount' => 'nullable|numeric|min:0', // Changed to numeric
             'price' => 'nullable|numeric|min:0', // Changed to numeric
+            'price_after_discount' => 'nullable|numeric|min:0', // Changed to numeric
             'img' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validate the uploaded image
         ]);
 
@@ -131,6 +133,15 @@ class ProductApiController extends Controller
 
         return response()->json(null, 204);
     }
+
+    public function newArrivals()
+    {
+        $products = Product::latest()->take(10)->get(); // Get latest 10 products
+
+        return ApiResponseHelper::success(ProductResource::collection($products), "Latest 10 products retrieved successfully");
+    }
+
+
 
 
 }

@@ -58,14 +58,22 @@ class ProductCrudController extends CrudController
         
         CRUD::addColumn([
             'name' => 'price',
-            'label' => 'Final Price',
+            'label' => 'Original Price',
             'type' => 'number',
+            'decimals' => 2,
         ]);
     
         CRUD::addColumn([
             'name' => 'discount',
             'label' => 'Discount (%)',
             'type' => 'number',
+        ]);
+
+        CRUD::addColumn([
+            'name' => 'price_after_discount',
+            'label' => 'Price After Discount',
+            'type' => 'number',
+            'decimals' => 2,
         ]);
     }
 
@@ -127,16 +135,20 @@ class ProductCrudController extends CrudController
         CRUD::addField([
             'name' => 'price',
             'label' => 'Price',
-            'type' => 'text',
+            'type' => 'number',
+            'attributes' => [
+                'step' => '0.01'
+            ],
         ]);
+
+        
 
         CRUD::addField([
             'name' => 'img',
             'label' => "Product Image",
             'type' => 'upload',
             'upload' => true,
-            'disk' => 'public', 
-            'prefix' => 'storage/',
+            'disk' => 'public', // Make sure the disk is set to public
         ]);
         
 

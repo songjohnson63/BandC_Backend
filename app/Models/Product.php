@@ -12,9 +12,7 @@ class Product extends Model
 {
     use HasFactory, CrudTrait;
 
-
-    // Specify the table name if it's not the plural form of the model
-    // protected $table = 'products';
+    public $timestamps = true;
 
     protected $fillable = [
         'name',
@@ -27,18 +25,26 @@ class Product extends Model
         'price',
         'img',
         'best_seller',
+        'price_after_discount',
     ];
-
 
     protected $appends = ['favorited_by_current_user'];
 
-
-    // If you need to cast attributes to a specific type, use the $casts property
     protected $casts = [
-        'ori_price' => 'decimal:2',
         'price' => 'decimal:2',
+        'price_after_discount' => 'decimal:2',
     ];
 
+    public static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($product) {
+            // Calculate price after discount before saving
+            $product->price_after_discount = round($product->price - ($product->price * ($product->discount / 100)), 2);
+        });
+    }
+    
     public function productType()
     {
         return $this->belongsTo(ProductType::class, 'product_type_id');
@@ -47,10 +53,16 @@ class Product extends Model
 
     // **Calculate Final Price (Price After Discount)**
      // **Override price to always return the discounted price**
-     public function getPriceAttribute($value)
-     {
-         return round($value - ($value * ($this->discount / 100)), 2);
-     }
+    //  public function getPriceAttribute($value)
+    //  {
+    //      return round($value - ($value * ($this->discount / 100)), 2);
+    //  }
+
+    public function getPriceAfterDiscountAttribute()
+    {
+        return round($this->price - ($this->price * ($this->discount / 100)), 2);
+    }
+
     // Optionally, if you have relationships, you can define them here
     // public function category()
     // {

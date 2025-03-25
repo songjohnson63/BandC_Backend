@@ -43,7 +43,11 @@ Route::prefix('product')->group(function () {
     Route::put('{id}', [ProductApiController::class, 'update']);
     Route::delete('{id}', [ProductApiController::class, 'destroy']);
 
+
 });
+Route::get('/product/new-arrivals', [ProductApiController::class, 'newArrivals']);
+
+
 
 Route::middleware('auth:sanctum')->post('/favorites/toggle', [FavoriteApiController::class, 'toggleFavorite']);
 Route::middleware('auth:sanctum')->get('/favorites', [FavoriteApiController::class, 'getFavorites']);
