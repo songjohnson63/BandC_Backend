@@ -113,4 +113,31 @@ class CartApiController extends Controller
         $cartItem->delete();
         return response()->json(['message' => 'Item removed from cart'], 200);
     }
+
+    public function updateQuantity(Request $request, $cartItemId)
+    {
+        $cartItem = CartItem::findOrFail($cartItemId);
+        $cartItem->quantity = $request->quantity;
+        $cartItem->save();
+
+        // Optionally, you can return the updated cart item and the total price
+        $updatedCartItem = CartItem::with('product')->find($cartItemId);
+
+        // Recalculate the total price
+        $totalPrice = CartItem::where('customer_id', $cartItem->customer_id)
+                            ->get()
+                            ->sum(function ($item) {
+                                return $item->product->price_after_discount * $item->quantity;
+                            });
+
+        return response()->json([
+            'success' => true,
+            'cartItem' => $updatedCartItem,
+            'total' => number_format($totalPrice, 2)
+        ]);
+    }
+
+    
+
+
 }

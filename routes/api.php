@@ -56,4 +56,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/cart/add', [CartApiController::class, 'addToCart']);
     Route::get('/cart', [CartApiController::class, 'getCartItems']);
     Route::delete('/cart/remove/{id}', [CartApiController::class, 'removeFromCart']);
+    Route::put('/api/cart/update/{cartItemId}', [CartApiController::class, 'updateQuantity']);
+
 });
