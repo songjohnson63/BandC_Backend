@@ -114,29 +114,38 @@ class CartApiController extends Controller
         return response()->json(['message' => 'Item removed from cart'], 200);
     }
 
-    public function updateQuantity(Request $request, $cartItemId)
+    public function update(Request $request, $cartItemId)
     {
-        $cartItem = CartItem::findOrFail($cartItemId);
+        $request->validate([
+            'quantity' => 'required|integer|min:1',
+        ]);
+    
+        $cartItem = CartItem::find($cartItemId);
+    
+        if (!$cartItem) {
+            return response()->json([
+                'status' => 404,
+                'status_code' => 'error',
+                'message' => 'Cart item not found',
+            ], 404);
+        }
+    
         $cartItem->quantity = $request->quantity;
-        $cartItem->save();
-
-        // Optionally, you can return the updated cart item and the total price
-        $updatedCartItem = CartItem::with('product')->find($cartItemId);
-
-        // Recalculate the total price
-        $totalPrice = CartItem::where('customer_id', $cartItem->customer_id)
-                            ->get()
-                            ->sum(function ($item) {
-                                return $item->product->price_after_discount * $item->quantity;
-                            });
-
+        $cartItem->save(); // ✅ Ensure the update is committed
+    
+        // ✅ Fetch the latest cart data after updating
+        $updatedCartItems = Cart::with('product')->where('customer_id', $cartItem->customer_id)->get();
+        
         return response()->json([
-            'success' => true,
-            'cartItem' => $updatedCartItem,
-            'total' => number_format($totalPrice, 2)
+            'status' => 200,
+            'status_code' => 'success',
+            'message' => 'Cart updated successfully',
+            'data' => [
+                'total' => $updatedCartItems->sum(fn($item) => $item->product->price_after_discount * $item->quantity),
+                'cart_items' => $updatedCartItems
+            ],
         ]);
     }
-
     
 
 
