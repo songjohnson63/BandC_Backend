@@ -134,12 +134,44 @@ class ProductApiController extends Controller
         return response()->json(null, 204);
     }
 
-    public function newArrivals()
+    public function newArrival()
     {
-        $products = Product::latest()->take(10)->get(); // Get latest 10 products
-
-        return ApiResponseHelper::success(ProductResource::collection($products), "Latest 10 products retrieved successfully");
+        // Get distinct product_type_ids
+        $productTypes = Product::select('product_type_id')
+            ->distinct()
+            ->pluck('product_type_id');
+    
+        $newArrivals = [];
+    
+        // Loop through each product_type_id and get the latest products
+        foreach ($productTypes as $typeId) {
+            // Get the latest products for this product type
+            $latestProducts = Product::where('product_type_id', $typeId)
+                ->latest()
+                ->take(10)
+                ->get();
+    
+            // Get the product type details
+            $productType = \App\Models\ProductType::find($typeId);
+    
+            // Add the product type name along with the products
+            $newArrivals[] = [
+                'product_type' => [
+                    'id' => $productType->id,
+                    'type_name' => $productType->type_name,  // Return the product type's name
+                ],
+                'products' => $latestProducts,
+            ];
+        }
+    
+        return response()->json([
+            'status' => 200,
+            'status_code' => 'success',
+            'message' => 'Latest 10 products from each product type',
+            'data' => $newArrivals
+        ]);
     }
+    
 
 
 

@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\CustomerApiController;
 use App\Http\Controllers\Api\ProductApiController;
 use App\Http\Controllers\Api\FavoriteApiController;
 use App\Http\Controllers\Api\CartApiController;
+use App\Http\Controllers\Api\PaymentApiController;
 
 
 /*
@@ -45,7 +46,7 @@ Route::prefix('product')->group(function () {
 
 
 });
-Route::get('/product/new-arrivals', [ProductApiController::class, 'newArrivals']);
+Route::get('/new-arrival', [ProductApiController::class, 'newArrival']);
 
 
 
@@ -57,6 +58,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/cart', [CartApiController::class, 'getCartItems']);
     Route::delete('/cart/remove/{id}', [CartApiController::class, 'removeFromCart']);
     Route::post('/cart/update/{id}', [CartApiController::class, 'update']);
-
-
 });
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/payment', [PaymentApiController::class, 'store']);
+    Route::get('/payment/{id}', [PaymentApiController::class, 'show']);
+});    
+
