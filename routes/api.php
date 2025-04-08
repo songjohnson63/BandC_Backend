@@ -45,7 +45,10 @@ Route::prefix('product')->group(function () {
     Route::delete('{id}', [ProductApiController::class, 'destroy']);
 
 
+
 });
+Route::get('/best-sellers', [ProductApiController::class, 'bestSellers']);
+
 Route::get('/new-arrival', [ProductApiController::class, 'newArrival']);
 
 
