@@ -29,6 +29,7 @@ class CustomerRequest extends FormRequest
             'gender' => 'nullable|in:male,female,rather_not_to_say',
             'address' => 'nullable|string|max:255',
             'phonenumber' => 'nullable|string|max:20',
+            'password' => 'nullable|string|min:6' // Add this line
 
         ];
     }

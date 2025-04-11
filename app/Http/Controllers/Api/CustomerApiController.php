@@ -18,8 +18,12 @@ class CustomerApiController extends Controller
      */
     public function index()
     {
-        $customers = Customer::all(); 
-        return ApiResponseHelper::success($customers);
+        // $customers = Customer::all(); 
+        // $query = Customer::with('cityProvince');
+
+        // return ApiResponseHelper::success($customers);
+        $customers = Customer::with('cityProvince')->get();
+        return ApiResponseHelper::success(CustomerResource::collection($customers));
 
     }
 
@@ -36,7 +40,11 @@ class CustomerApiController extends Controller
             'gender' => 'nullable|in:male,female,rather_not_to_say',
             'address' => 'nullable|string|max:255',
             'phonenumber' => 'nullable|string|max:20',
+            'password' => 'required|string|min:6',
         ]);
+
+         // Hash the password before saving
+
 
         $customer = Customer::create($validated);
 
@@ -52,7 +60,8 @@ class CustomerApiController extends Controller
      */
     public function show($id)
     {
-        $customer = Customer::findOrFail($id); 
+        $customer = Customer::with('cityProvince')->findOrFail($id); 
+
 
         return new CustomerResource($customer);
     }

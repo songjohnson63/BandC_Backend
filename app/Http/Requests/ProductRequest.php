@@ -32,6 +32,7 @@ class ProductRequest extends FormRequest
             'best_seller' => 'nullable|boolean',
             'discount' => 'nullable|numeric|min:0', // Changed to numeric
             'price' => 'nullable|numeric|min:0', // Changed to numeric
+            'price_after_discount' => 'nullable|numeric|min:0', // Changed to numeric
             'img' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validate the uploaded image
         ];
 

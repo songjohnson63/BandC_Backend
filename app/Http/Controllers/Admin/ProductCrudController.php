@@ -43,25 +43,37 @@ class ProductCrudController extends CrudController
             'type' => 'text',
         ]);
 
-        CRUD::addColumn([
-            'name' => 'img',
-            'label' => 'Image',
-            'type' => 'upload',
-            'upload' => true,
-            // Displays the image field as a clickable thumbnail
-            'disk' => 'public', // Ensure the images are stored in the public disk
-        ]);
-
+        // CRUD::addColumn([
+        //     'name' => 'img',
+        //     'label' => "Image",
+        //     'type' => 'closure',
+        //     'function' => function ($entry) {
+        //         if ($entry->image) {
+        //             return "<img src='" . asset('storage/' . $entry->img) . "' width='50' height='50'/>";
+        //         }
+        //         return "No Image"; // Fallback text
+        //     },
+        // ]);
+        
+        
         CRUD::addColumn([
             'name' => 'price',
-            'label' => 'Final Price',
+            'label' => 'Original Price',
             'type' => 'number',
+            'decimals' => 2,
         ]);
     
         CRUD::addColumn([
             'name' => 'discount',
             'label' => 'Discount (%)',
             'type' => 'number',
+        ]);
+
+        CRUD::addColumn([
+            'name' => 'price_after_discount',
+            'label' => 'Price After Discount',
+            'type' => 'number',
+            'decimals' => 2,
         ]);
     }
 
@@ -123,43 +135,47 @@ class ProductCrudController extends CrudController
         CRUD::addField([
             'name' => 'price',
             'label' => 'Price',
-            'type' => 'text',
+            'type' => 'number',
+            'attributes' => [
+                'step' => '0.01'
+            ],
         ]);
+
+        
 
         CRUD::addField([
             'name' => 'img',
-            'label' => 'Product Image',
-            'type' => 'upload',  // Use the upload field type
-            'disk' => 'public',
-            'upload' => true, // Enable the upload feature
-            'crop' => true, // Optionally, enable cropping for images
+            'label' => "Product Image",
+            'type' => 'upload',
+            'upload' => true,
+            'disk' => 'public', // Make sure the disk is set to public
         ]);
+        
+
     }
-
-
     
     protected function setupUpdateOperation()
     {
         $this->setupCreateOperation();
     }
 
-  
     public function store(Request $request)
     {
         $data = $request->except(['img']); // Exclude image from mass assignment
 
-    if ($request->hasFile('img')) {
-        $file = $request->file('img');
+        if ($request->hasFile('img')) {
+            $file = $request->file('img');
 
-        // Save to "public/images" directory and get the stored path
-        $filePath = $file->store('images', 'public');
+            // Store file in "storage/app/public/" and get the filename
+            $filePath = $file->store('public'); // This saves to storage/app/public/
 
-        // Save only "storage/images/image123.jpg" in database
-        $data['img'] = 'storage/' . $filePath;
+            // Fix the image path (remove "public/" prefix and use storage link)
+            $data['img'] = str_replace('public/', 'storage/', $filePath);
+        }
+
+        $product = Product::create($data);
+        return redirect()->back()->with('success', 'Product created successfully!');
     }
 
-    $product = Product::create($data);
-    return redirect()->back()->with('success', 'Product created successfully!');
-    }
 
 }
