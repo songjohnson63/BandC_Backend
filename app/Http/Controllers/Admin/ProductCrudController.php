@@ -141,9 +141,7 @@ class ProductCrudController extends CrudController
             ],
         ]);
 
-        
-
-        CRUD::addField([
+       CRUD::addField([
             'name' => 'img',
             'label' => "Product Image",
             'type' => 'upload',
