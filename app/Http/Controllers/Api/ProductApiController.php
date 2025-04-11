@@ -8,6 +8,8 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use App\Http\Resources\ProductResource; // Import the ExperienceResource
 use App\Helpers\ApiResponseHelper;
+use Illuminate\Support\Facades\DB;
+
 
 class ProductApiController extends Controller
 {
@@ -30,7 +32,15 @@ class ProductApiController extends Controller
                 $query->where('best_seller', false);
             }
         }
+
+        if ($request->has('product_type')) {
+            $productTypeName = strtolower($request->query('product_type')); // Convert input to lowercase
     
+            $query->whereHas('productType', function ($q) use ($productTypeName) {
+                $q->whereRaw('LOWER(type_name) = ?', [$productTypeName]); // Use 'type_name' instead of 'name'
+            });
+        }
+        
         // Get the filtered products
         $products = $query->get();
 
@@ -49,15 +59,21 @@ class ProductApiController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'brand' => 'nullable|string|max:255',
-            'description' => 'nullable|string|max:1000', // Corrected text -> string
+            'description' => 'nullable|string|max:2500', // Corrected text -> string
             'volume' => 'required|string|max:255',
-            'key_ingredient' => 'nullable|string|max:1000', // Corrected text -> string
+            'key_ingredient' => 'nullable|string|max:2500', // Corrected text -> string
             'best_seller' => 'nullable|boolean',
             'discount' => 'nullable|numeric|min:0', // Changed to numeric
             'price' => 'nullable|numeric|min:0', // Changed to numeric
+            'price_after_discount' => 'nullable|numeric|min:0', // Changed to numeric
             'img' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validate the uploaded image
         ]);
 
+        if ($request->hasFile('img')) {
+            $imagePath = $request->file('img')->store('IMAGES', 'public'); // Save in storage/app/public/IMAGES
+            $validated['img'] = $imagePath; // Store relative path in database
+        }
+    
         $product = Product::create($validated);
 
         return ApiResponseHelper::success($product, "Product created successfully", 201);
@@ -91,12 +107,13 @@ class ProductApiController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'brand' => 'nullable|string|max:255',
-            'description' => 'nullable|string|max:1000', // Corrected text -> string
+            'description' => 'nullable|string|max:2500', // Corrected text -> string
             'volume' => 'required|string|max:255',
-            'key_ingredient' => 'nullable|string|max:1000', // Corrected text -> string
+            'key_ingredient' => 'nullable|string|max:2500', // Corrected text -> string
             'best_seller' => 'nullable|boolean',
             'discount' => 'nullable|numeric|min:0', // Changed to numeric
             'price' => 'nullable|numeric|min:0', // Changed to numeric
+            'price_after_discount' => 'nullable|numeric|min:0', // Changed to numeric
             'img' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validate the uploaded image
         ]);
 
@@ -119,5 +136,64 @@ class ProductApiController extends Controller
         return response()->json(null, 204);
     }
 
+    public function newArrival()
+    {
+        // Get distinct product_type_ids
+        $productTypes = Product::select('product_type_id')
+            ->distinct()
+            ->pluck('product_type_id');
+    
+        $newArrivals = [];
+    
+        // Loop through each product_type_id and get the latest products
+        foreach ($productTypes as $typeId) {
+            // Get the latest products for this product type
+            $latestProducts = Product::where('product_type_id', $typeId)
+                ->latest()
+                ->take(10)
+                ->get();
+    
+            // Get the product type details
+            $productType = \App\Models\ProductType::find($typeId);
+    
+            // Add the product type name along with the products
+            $newArrivals[] = [
+                'product_type' => [
+                    'id' => $productType->id,
+                    'type_name' => $productType->type_name,  // Return the product type's name
+                ],
+                'products' => $latestProducts,
+            ];
+        }
+    
+        return response()->json([
+            'status' => 200,
+            'status_code' => 'success',
+            'message' => 'Latest 10 products from each product type',
+            'data' => $newArrivals
+        ]);
+    }
+
+
+    public function bestSellers()
+{
+    // Get product IDs with total quantity > 10
+    $bestSellerProductIds = DB::table('payment_items')
+        ->join('cart_items', 'payment_items.cart_item_id', '=', 'cart_items.id')
+        ->select('cart_items.product_id', DB::raw('SUM(cart_items.quantity) as total_quantity'))
+        ->groupBy('cart_items.product_id')
+        ->having('total_quantity', '>', 10)
+        ->pluck('cart_items.product_id');
+
+    // Fetch full product info using the IDs
+    $products = Product::whereIn('id', $bestSellerProductIds)->get();
+
+    return response()->json([
+        'status' => 200,
+        'status_code' => 'success',
+        'message' => 'Best Seller products in our store',
+        'data' => $products
+    ]);
+}
 
 }
