@@ -43,17 +43,17 @@ class ProductCrudController extends CrudController
             'type' => 'text',
         ]);
 
-        CRUD::addColumn([
-            'name' => 'img',
-            'label' => "Image",
-            'type' => 'closure',
-            'function' => function ($entry) {
-                if ($entry->image) {
-                    return "<img src='" . asset('storage/' . $entry->img) . "' width='50' height='50'/>";
-                }
-                return "No Image"; // Fallback text
-            },
-        ]);
+        // CRUD::addColumn([
+        //     'name' => 'img',
+        //     'label' => "Image",
+        //     'type' => 'closure',
+        //     'function' => function ($entry) {
+        //         if ($entry->image) {
+        //             return "<img src='" . asset('storage/' . $entry->img) . "' width='50' height='50'/>";
+        //         }
+        //         return "No Image"; // Fallback text
+        //     },
+        // ]);
         
         
         CRUD::addColumn([
