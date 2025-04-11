@@ -46,6 +46,21 @@ class CustomerCrudController extends CrudController
             'default' => 'male', // Default value for the field
         ]);
 
+        CRUD::addField([
+            'name' => 'city_province_id',
+            'label' => 'City/Province',
+            'type' => 'select',
+            'entity' => 'cityProvince',
+            'attribute' => 'name',
+            'model' => \App\Models\CityProvince::class,
+        ]);
+
+        CRUD::addField([
+            'name' => 'password',
+            'label' => 'Password',
+            'type' => 'password',
+        ]);
+
              
     }
 
