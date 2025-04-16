@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\ProductApiController;
 use App\Http\Controllers\Api\FavoriteApiController;
 use App\Http\Controllers\Api\CartApiController;
 use App\Http\Controllers\Api\PaymentApiController;
+use App\Http\Controllers\Api\OrderHistoryApiController;
 
 
 /*
@@ -68,3 +69,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/payment/{id}', [PaymentApiController::class, 'show']);
 });    
 
+
+Route::middleware('auth:sanctum')->get('/order-history', [OrderHistoryApiController::class, 'orderHistory']);

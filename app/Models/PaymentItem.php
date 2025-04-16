@@ -15,9 +15,16 @@ class PaymentItem extends Model
         return $this->belongsTo(Payment::class);
     }
 
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
+    }
 
     public function cartItem()
     {
-        return $this->belongsTo(CartItem::class);  // Assuming CartItem model exists
+        return $this->belongsTo(CartItem::class, 'cart_item_id');
     }
+
+    
+
 }
