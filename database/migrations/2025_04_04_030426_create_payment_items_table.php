@@ -14,19 +14,17 @@ return new class extends Migration
         Schema::create('payment_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('payment_id')->constrained()->onDelete('cascade');
-            $table->foreignId('cart_item_id')->constrained()->onDelete('cascade'); // Reference to cart items
+            // Optional: Make it nullable so SET NULL works
+            $table->unsignedBigInteger('cart_item_id')->nullable();
             $table->timestamps();
-
-          
+            // Re-add foreign key without cascade delete
+            $table->foreign('cart_item_id')->references('id')->on('cart_items')->onDelete('set null');
         });
+    }
+
+    public function down(): void
+    {
         
     }
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::dropIfExists('payment_items');
-    }
 };

@@ -25,6 +25,11 @@ class Payment extends Model
     {
         return $this->hasMany(PaymentItem::class, 'payment_id');
     }
+
+    public function paymentItems()
+    {
+        return $this->hasMany(PaymentItem::class);
+    }
     
 
 
