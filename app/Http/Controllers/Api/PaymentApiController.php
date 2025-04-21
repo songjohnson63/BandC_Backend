@@ -13,43 +13,10 @@ use Validator;
 
 class PaymentApiController extends Controller
 {
-    public function index(Request $request)
-    {
-        $customerId = $request->query('customer_id');
-
-        if (!$customerId) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'customer_id query parameter is required'
-            ], 400);
-        }
-
-        // Fetch payments for the customer
-        $payments = Payment::where('customer_id', $customerId)->get();
-
-        // If there are payments, update the customer’s address with the latest pick_up_address
-        if ($payments->count() > 0) {
-            $latestPayment = $payments->sortByDesc('created_at')->first(); // Get the most recent payment
-            
-            // Update the customer's address with the latest pick_up_address
-            $customer = Customer::find($customerId);
-            if ($customer) {
-                $customer->address = $latestPayment->pick_up_address;
-                $customer->save();
-            }
-        }
-
-        return response()->json([
-            'status' => 'success',
-            'data' => $payments
-        ]);
-    }
-
     public function store(Request $request)
     {
         $request->validate([
             'total' => 'required|numeric',
-            'customer_id' => 'required|exists:customers,id',
             'pick_up_address' => 'required|string',
             'payment_method' => 'required|string',
             'cart_item_ids' => 'required|array',
@@ -110,7 +77,6 @@ class PaymentApiController extends Controller
         foreach ($payment->paymentItems as $item) {
             $paymentDetails[] = [
                 'product_id' => $item->product->id,
-                'customer_id' => $payment->customer_id,
                 'product_name' => $item->product->name,
                 'image' => url('/storage/' . $item->product->img),
                 'quantity' => $item->qty,
@@ -126,61 +92,61 @@ class PaymentApiController extends Controller
         ]);
     }
 
-    // public function getUserPayments()
-    // {
-    //     // Get the authenticated user via Sanctum
-    //     $customer = Auth::user(); // This gets the customer (user) from Sanctum
+    public function getUserPayments()
+    {
+        // Get the authenticated user via Sanctum
+        $customer = Auth::user(); // This gets the customer (user) from Sanctum
     
-    //     if (!$customer) {
-    //         return response()->json([
-    //             'status' => 'error',
-    //             'message' => 'User not authenticated'
-    //         ], 401);
-    //     }
+        if (!$customer) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User not authenticated'
+            ], 401);
+        }
     
-    //     // Retrieve all payments associated with the logged-in user (using customer_id)
-    //     $payments = Payment::with('paymentItems.product')
-    //                        ->where('customer_id', $customer->id)  // Fetch payments based on customer_id
-    //                        ->get();
+        // Retrieve all payments associated with the logged-in user (using customer_id)
+        $payments = Payment::with('paymentItems.product')
+                           ->where('customer_id', $customer->id)  // Fetch payments based on customer_id
+                           ->get();
     
-    //     // Check if there are no payments
-    //     if ($payments->isEmpty()) {
-    //         return response()->json([
-    //             'status' => 'error',
-    //             'message' => 'No payments found for the user'
-    //         ], 404);
-    //     }
+        // Check if there are no payments
+        if ($payments->isEmpty()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No payments found for the user'
+            ], 404);
+        }
     
-    //     // Prepare payment details
-    //     $paymentDetails = [];
-    //     foreach ($payments as $payment) {
-    //         $paymentItemDetails = [];
-    //         foreach ($payment->paymentItems as $item) {
-    //             $paymentItemDetails[] = [
-    //                 'product_id' => $item->product->id,
-    //                 'product_name' => $item->product->name,
-    //                 // 'img' => $item->product->img, // <-- Add this line
-    //                 'img' => url('/storage/' . $item->product->img),
-    //                 'quantity' => $item->qty,
-    //                 'total' => $item->product->price * $item->qty,
-    //                 'price' => $item->product->price_after_discount,
-    //             ];
-    //         }
-    //         $paymentDetails[] = [
-    //             'payment_id' => $payment->id,
-    //             'payment_items' => $paymentItemDetails,
-    //             'total' => $payment->total,  // Assuming there's a total field in the payments table
-    //             'pick_up_address' => $payment->pick_up_address,
-    //             'payment_method' => $payment->payment_method
-    //         ];
-    //     }
+        // Prepare payment details
+        $paymentDetails = [];
+        foreach ($payments as $payment) {
+            $paymentItemDetails = [];
+            foreach ($payment->paymentItems as $item) {
+                $paymentItemDetails[] = [
+                    'product_id' => $item->product->id,
+                    'product_name' => $item->product->name,
+                    // 'img' => $item->product->img, // <-- Add this line
+                    'img' => url('/storage/' . $item->product->img),
+                    'quantity' => $item->qty,
+                    'total' => $item->product->price * $item->qty,
+                    'price' => $item->product->price_after_discount,
+                ];
+            }
+            $paymentDetails[] = [
+                'payment_id' => $payment->id,
+                'payment_items' => $paymentItemDetails,
+                'total' => $payment->total,  // Assuming there's a total field in the payments table
+                'pick_up_address' => $payment->pick_up_address,
+                'payment_method' => $payment->payment_method
+            ];
+        }
     
-    //     // Return the payments data
-    //     return response()->json([
-    //         'status' => 'success',
-    //         'data' => $paymentDetails
-    //     ]);
-    // }
+        // Return the payments data
+        return response()->json([
+            'status' => 'success',
+            'data' => $paymentDetails
+        ]);
+    }
   
 
 
