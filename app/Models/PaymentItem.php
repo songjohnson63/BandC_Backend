@@ -8,16 +8,20 @@ use Illuminate\Database\Eloquent\Model;
 // PaymentItem model
 class PaymentItem extends Model
 {
-    protected $fillable = ['payment_id', 'cart_item_id'];
+    protected $fillable = ['payment_id', 'cart_item_id', 'product_id', 'qty'];
 
     public function payment()
     {
         return $this->belongsTo(Payment::class);
     }
 
-
     public function cartItem()
     {
-        return $this->belongsTo(CartItem::class);  // Assuming CartItem model exists
+        return $this->belongsTo(CartItem::class, 'cart_item_id');
+    }
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
     }
 }

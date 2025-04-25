@@ -8,6 +8,8 @@ use App\Http\Controllers\Api\ProductApiController;
 use App\Http\Controllers\Api\FavoriteApiController;
 use App\Http\Controllers\Api\CartApiController;
 use App\Http\Controllers\Api\PaymentApiController;
+use App\Http\Controllers\Api\OrderHistoryApiController;
+use App\Models\CityProvince;
 
 
 /*
@@ -64,7 +66,16 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/payments', [PaymentApiController::class, 'index']);
     Route::post('/payment', [PaymentApiController::class, 'store']);
-    Route::get('/payment/{id}', [PaymentApiController::class, 'show']);
+    Route::get('/payments/{id}', [PaymentApiController::class,  'show']);
+
 });    
 
+
+Route::middleware('auth:sanctum')->get('/order-history', [OrderHistoryApiController::class, 'orderHistory']);
+
+
+Route::get('/city-provinces', function () {
+    return response()->json(CityProvince::all());
+});

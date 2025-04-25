@@ -73,20 +73,39 @@ class CustomerApiController extends Controller
      * @param int $id
      * @return \Illuminate\Http\JsonResponse
      */
+    // public function update(Request $request, $id)
+    // {
+    //     $customer = Customer::findOrFail($id);
+
+    //     $validated = $request->validate([
+    //         'name' => 'required|string|max:255',
+    //         'gender' => 'nullable|in:male,female,rather_not_to_say',
+    //         'address' => 'nullable|string|max:255',
+    //         'phonenumber' => 'nullable|string|max:20',
+    //     ]);
+
+    //     $customer->update($validated);
+
+    //     return response()->json($customer);
+    // }
+
     public function update(Request $request, $id)
     {
-        $customer = Customer::findOrFail($id);
+        $customer = Customer::find($id);
+        if (!$customer) {
+            return response()->json(['status' => 'error', 'message' => 'Customer not found'], 404);
+        }
 
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'gender' => 'nullable|in:male,female,rather_not_to_say',
-            'address' => 'nullable|string|max:255',
-            'phonenumber' => 'nullable|string|max:20',
+        $request->validate([
+            'name' => 'required|string',
+            'phonenumber' => 'required|string',
         ]);
 
-        $customer->update($validated);
+        $customer->name = $request->name;
+        $customer->phonenumber = $request->phonenumber;
+        $customer->save();
 
-        return response()->json($customer);
+        return response()->json(['status' => 'success', 'message' => 'Customer updated successfully.']);
     }
 
     /**
