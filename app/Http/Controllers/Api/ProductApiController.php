@@ -242,24 +242,36 @@ class ProductApiController extends Controller
 
 
     public function bestSellers()
-{
-    // Get product IDs with total quantity > 10
-    $bestSellerProductIds = DB::table('payment_items')
-        ->join('cart_items', 'payment_items.cart_item_id', '=', 'cart_items.id')
-        ->select('cart_items.product_id', DB::raw('SUM(cart_items.quantity) as total_quantity'))
-        ->groupBy('cart_items.product_id')
-        ->having('total_quantity', '>', 10)
-        ->pluck('cart_items.product_id');
+    {
+        // Get product IDs with total quantity > 10
+        $bestSellerProductIds = DB::table('payment_items')
+            ->join('cart_items', 'payment_items.cart_item_id', '=', 'cart_items.id')
+            ->select('cart_items.product_id', DB::raw('SUM(cart_items.quantity) as total_quantity'))
+            ->groupBy('cart_items.product_id')
+            ->having('total_quantity', '>', 10)
+            ->pluck('cart_items.product_id');
 
-    // Fetch full product info using the IDs
-    $products = Product::whereIn('id', $bestSellerProductIds)->get();
+        // Fetch full product info using the IDs
+        $products = Product::whereIn('id', $bestSellerProductIds)->get();
 
-    return response()->json([
-        'status' => 200,
-        'status_code' => 'success',
-        'message' => 'Best Seller products in our store',
-        'data' => $products
-    ]);
-}
+        return response()->json([
+            'status' => 200,
+            'status_code' => 'success',
+            'message' => 'Best Seller products in our store',
+            'data' => $products
+        ]);
+    }
 
+    public function filterDiscountedProducts()
+    {
+        $discountedProducts = Product::where('discount', '>', 0)->get();
+    
+        if ($discountedProducts->isEmpty()) {
+            return response()->json(['message' => 'No discounted products found.'], 404);
+        }
+
+        return ApiResponseHelper::success($discountedProducts, "Discounted Products", 201);
+
+    }
+    
 }
