@@ -68,7 +68,7 @@ class ProductApiController extends Controller
             'products.*.brand' => 'nullable|string|max:255',
             'products.*.description' => 'nullable|string|max:2500',
             'products.*.product_type' => 'nullable|string|max:255', // Expecting name of the product type
-            'products.*.volume' => 'required|string|max:255',
+            'products.*.volume' => 'nullable|string|max:255',
             'products.*.key_ingredient' => 'nullable|string|max:2500',
             'products.*.best_seller' => 'nullable|boolean',
             'products.*.discount' => 'nullable|numeric|min:0',
@@ -110,7 +110,7 @@ class ProductApiController extends Controller
             'brand' => 'nullable|string|max:255',
             'description' => 'nullable|string|max:2500',
             'product_type' => 'required|string|max:255', // Expecting product type as a name
-            'volume' => 'required|string|max:255',
+            'volume' => 'nullable|string|max:255',
             'key_ingredient' => 'nullable|string|max:2500',
             'best_seller' => 'nullable|boolean',
             'discount' => 'nullable|numeric|min:0',

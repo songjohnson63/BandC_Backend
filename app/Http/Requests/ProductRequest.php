@@ -27,7 +27,7 @@ class ProductRequest extends FormRequest
             'brand' => 'nullable|string|max:255',
             'product_type_id' => 'nullable|exists:product_types,id',
             'description' => 'nullable|string|max:1000', // Corrected text -> string
-            'volume' => 'required|string|max:255',
+            'volume' => 'nullable|string|max:255',
             'key_ingredient' => 'nullable|string|max:1000', // Corrected text -> string
             'best_seller' => 'nullable|boolean',
             'discount' => 'nullable|numeric|min:0', // Changed to numeric
