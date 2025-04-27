@@ -33,10 +33,7 @@ class ProductRequest extends FormRequest
             'discount' => 'nullable|numeric|min:0', // Changed to numeric
             'price' => 'nullable|numeric|min:0', // Changed to numeric
             'price_after_discount' => 'nullable|numeric|min:0', // Changed to numeric
-            'img' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validate the uploaded image
+            'img' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048', // Validate the uploaded image
         ];
-
-
-        
     }
 }

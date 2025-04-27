@@ -18,10 +18,11 @@ class ProductResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'brand' => $this->brand,
-            'product_type' => [
+            'product_type' => $this->productType ? [
                 'id' => $this->productType->id,
                 'type_name' => $this->productType->type_name,
-            ],
+            ] : null,
+
             'description' => $this->description,
             'volume' => $this->volume,
             'key_ingredient' => $this->key_ingredient,

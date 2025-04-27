@@ -7,44 +7,50 @@ use Illuminate\Http\Request;
 use App\Models\CartItem;
 use App\Models\Product;
 use App\Helpers\ApiResponseHelper;
+use Illuminate\Support\Facades\Log;  // <-- Add this line
+
 
 class CartApiController extends Controller
 {
     // Add to Cart
     public function addToCart(Request $request)
-    {
-        $customer = auth()->user();
-        if (!$customer) {
-            return response()->json(['message' => 'Unauthorized'], 401);
-        }
-
-        $request->validate([
-            'products' => 'required|array',
-            'products.*.product_id' => 'required|exists:products,id',
-            'products.*.quantity' => 'required|integer|min:1',
-        ]);
-
-        foreach ($request->products as $productData) {
-            $cartItem = CartItem::where('customer_id', $customer->id)
-                ->where('product_id', $productData['product_id'])
-                ->first();
-
-            if ($cartItem) {
-                // Update quantity if product already exists in cart
-                $cartItem->quantity += $productData['quantity'];
-                $cartItem->save();
-            } else {
-                // Create new cart entry
-                CartItem::create([
-                    'customer_id' => $customer->id,
-                    'product_id' => $productData['product_id'],
-                    'quantity' => $productData['quantity'],
-                ]);
-            }
-        }
-
-        return response()->json(['message' => 'Products added to cart'], 200);
+{
+    $customer = auth()->user();
+    if (!$customer) {
+        return response()->json(['message' => 'Unauthorized'], 401);
     }
+
+    $request->validate([
+        'products' => 'required|array',
+        'products.*.product_id' => 'required|exists:products,id',
+        'products.*.quantity' => 'required|integer|min:1',
+    ]);
+
+    foreach ($request->products as $productData) {
+        Log::info('Processing product', $productData);
+
+        $cartItem = CartItem::where('customer_id', $customer->id)
+                            ->where('product_id', $productData['product_id'])
+                            ->first();
+
+        if ($cartItem) {
+            // Update quantity if product already exists in cart
+            $cartItem->quantity += $productData['quantity'];
+            $cartItem->save();
+            Log::info('Updated cart item', ['cart_item_id' => $cartItem->id, 'new_quantity' => $cartItem->quantity]);
+        } else {
+            // Create new cart entry
+            CartItem::create([
+                'customer_id' => $customer->id,
+                'product_id' => $productData['product_id'],
+                'quantity' => $productData['quantity'],
+            ]);
+            Log::info('Created new cart item', ['product_id' => $productData['product_id']]);
+        }
+    }
+
+    return response()->json(['message' => 'Products added to cart'], 200);
+}
 
 
     // Get Cart Itemspublic function getCartItems()

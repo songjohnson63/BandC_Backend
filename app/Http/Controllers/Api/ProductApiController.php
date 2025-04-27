@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use App\Http\Resources\ProductResource; // Import the ExperienceResource
 use App\Helpers\ApiResponseHelper;
 use Illuminate\Support\Facades\DB;
+use App\Models\ProductType;  // Add this import statement
+
 
 
 class ProductApiController extends Controller
@@ -55,30 +57,90 @@ class ProductApiController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request)
-    {
+{
+    $isMultiple = $request->has('products'); // Check if sending multiple products
+
+    if ($isMultiple) {
+        // Validate an array of products
+        $validated = $request->validate([
+            'products' => 'required|array|min:1',
+            'products.*.name' => 'required|string|max:255',
+            'products.*.brand' => 'nullable|string|max:255',
+            'products.*.description' => 'nullable|string|max:2500',
+            'products.*.product_type' => 'nullable|string|max:255', // Expecting name of the product type
+            'products.*.volume' => 'required|string|max:255',
+            'products.*.key_ingredient' => 'nullable|string|max:2500',
+            'products.*.best_seller' => 'nullable|boolean',
+            'products.*.discount' => 'nullable|numeric|min:0',
+            'products.*.price' => 'nullable|numeric|min:0',
+            'products.*.price_after_discount' => 'nullable|numeric|min:0',
+            'products.*.img' => 'nullable|string', // img as URL or string
+        ]);
+
+        $createdProducts = [];
+
+        foreach ($request->products as $productData) {
+            // If product_type is provided as a name, find the related ProductType and set the ID
+            if (isset($productData['product_type']) && is_string($productData['product_type'])) {
+                $productType = ProductType::where('type_name', $productData['product_type'])->first();
+
+                if ($productType) {
+                    $productData['product_type_id'] = $productType->id; // Set the product_type_id
+                } else {
+                    // If no matching product type is found, you could handle the error or set a default value
+                    return ApiResponseHelper::error('Invalid product type name.', 400);
+                }
+            }
+
+            // Handle image upload if exists
+            if (isset($productData['img']) && $productData['img'] instanceof \Illuminate\Http\UploadedFile) {
+                $imagePath = $productData['img']->store('IMAGES', 'public');
+                $productData['img'] = $imagePath;
+            }
+
+            // Save the product
+            $createdProducts[] = Product::create($productData);
+        }
+
+        return ApiResponseHelper::success($createdProducts, "Products created successfully", 201);
+    } else {
+        // Single product
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'brand' => 'nullable|string|max:255',
-            'description' => 'nullable|string|max:2500', // Corrected text -> string
+            'description' => 'nullable|string|max:2500',
+            'product_type' => 'required|string|max:255', // Expecting product type as a name
             'volume' => 'required|string|max:255',
-            'key_ingredient' => 'nullable|string|max:2500', // Corrected text -> string
+            'key_ingredient' => 'nullable|string|max:2500',
             'best_seller' => 'nullable|boolean',
-            'discount' => 'nullable|numeric|min:0', // Changed to numeric
-            'price' => 'nullable|numeric|min:0', // Changed to numeric
-            'price_after_discount' => 'nullable|numeric|min:0', // Changed to numeric
-            'img' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validate the uploaded image
+            'discount' => 'nullable|numeric|min:0',
+            'price' => 'nullable|numeric|min:0',
+            'price_after_discount' => 'nullable|numeric|min:0',
+            'img' => 'nullable|string', // img as URL or string
         ]);
 
-        if ($request->hasFile('img')) {
-            $imagePath = $request->file('img')->store('IMAGES', 'public'); // Save in storage/app/public/IMAGES
-            $validated['img'] = $imagePath; // Store relative path in database
+        // Find the related ProductType by name
+        $productType = ProductType::where('type_name', $validated['product_type'])->first();
+
+        if ($productType) {
+            $validated['product_type_id'] = $productType->id; // Set the product_type_id
+        } else {
+            // Handle error if no matching product type is found
+            return ApiResponseHelper::error('Invalid product type name.', 400);
         }
-    
+
+        // Handle image upload if exists
+        if ($request->hasFile('img')) {
+            $imagePath = $request->file('img')->store('IMAGES', 'public');
+            $validated['img'] = $imagePath;
+        }
+
+        // Save the product
         $product = Product::create($validated);
 
         return ApiResponseHelper::success($product, "Product created successfully", 201);
-
     }
+}
 
     /**
      * Display the specified student.
@@ -114,7 +176,7 @@ class ProductApiController extends Controller
             'discount' => 'nullable|numeric|min:0', // Changed to numeric
             'price' => 'nullable|numeric|min:0', // Changed to numeric
             'price_after_discount' => 'nullable|numeric|min:0', // Changed to numeric
-            'img' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validate the uploaded image
+            'img' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048', // Validate the uploaded image
         ]);
 
         $product->update($validated);
@@ -145,7 +207,6 @@ class ProductApiController extends Controller
     
         $newArrivals = [];
     
-        // Loop through each product_type_id and get the latest products
         foreach ($productTypes as $typeId) {
             // Get the latest products for this product type
             $latestProducts = Product::where('product_type_id', $typeId)
@@ -156,11 +217,15 @@ class ProductApiController extends Controller
             // Get the product type details
             $productType = \App\Models\ProductType::find($typeId);
     
-            // Add the product type name along with the products
+            // Skip if product type is not found
+            if (!$productType) {
+                continue;
+            }
+    
             $newArrivals[] = [
                 'product_type' => [
                     'id' => $productType->id,
-                    'type_name' => $productType->type_name,  // Return the product type's name
+                    'type_name' => $productType->type_name,
                 ],
                 'products' => $latestProducts,
             ];
@@ -173,6 +238,7 @@ class ProductApiController extends Controller
             'data' => $newArrivals
         ]);
     }
+    
 
 
     public function bestSellers()
